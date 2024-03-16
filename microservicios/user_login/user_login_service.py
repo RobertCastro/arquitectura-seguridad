@@ -1,3 +1,6 @@
+#revisar si se debe ejectuar este comando en consola antes de usar:
+#export PYTHONPATH=$PWD/seguridad:$PYTHONPATH
+
 from flask import Flask, request, jsonify, abort
 from flask_restful import Resource, reqparse
 from queue_user_login import insert_user_in_logs
@@ -30,38 +33,32 @@ class Userlogin(Resource):
     def post(self):
         print("inicio post")
         parser = reqparse.RequestParser()
-        print("fin declaracion parser")
         parser.add_argument('username', type=str, required=True, help='username is required')
-        print("fin username")
         parser.add_argument('password', type=str, required=True, help='password is required')
-        print("fin password")
         parser.add_argument('code', type=str, required=True, help='code is required')
-        print("fin code")
-        temp_username=request.json['username']
-        print(f'temp_username: {temp_username}')
         args = parser.parse_args()
 
-        print("fin parser")
         username = args['username']
         password = args['password']
         code = args['code']
 
         print("validar_request")
         validation_result = validar_request(username, password, code)
+        print("validation_result: ", validation_result)
 
         if validation_result != 'OK':
-            insert_user_in_logs(username, 1)
+            insert_user_in_logs(username, 0)
             return {'message': str(validation_result) }, 400
 
         if validar_datos_usuario(username, password):
             if validar_codigo(code):
-                insert_user_in_logs(username, 0)
+                insert_user_in_logs(username, 1)
                 return {'message': 'Login successful!'}, 200
             else:
-                insert_user_in_logs(username, 1)
+                insert_user_in_logs(username, 0)
                 return {'message': 'Invalid code!'}, 401
         else:
-            insert_user_in_logs(username, 1)
+            insert_user_in_logs(username, 0)
             return {'message': 'Invalid username or password!'}, 401
 
 api.add_resource(Userlogin, '/login')

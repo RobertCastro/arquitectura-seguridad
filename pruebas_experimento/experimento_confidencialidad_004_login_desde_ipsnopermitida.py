@@ -1,22 +1,19 @@
-import random
 import requests
 import csv
 import datetime
 import os
+import random
 
 url = 'http://localhost:5000/login'
 n_requests = 1000
 
-xss_scripts = [
-    "<script>alert('XSS1')</script>",
-    "onmouseenter=alert(3)",
-    "setTimeout('alert(5)', 0)",
-    "<script>alert('')</script>",
-    "onload=alert(3)",
-    "javascript:void(window.alert('XSS5'))"
-]
+# login_data_template = {
+#     "username": "robert@gmail.com",
+#     "password": "Password1&",
+#     "code": "424496"
+# }
 
-csv_file_name = 'pruebas_experimento/resultados_experimentos/experimento_integridad_001_XSS.csv'
+csv_file_name = 'pruebas_experimento/resultados_experimentos/experimento_confidencialidad_004_login_desde_ipsnopermitida.csv'
 
 if not os.path.exists('resultados_experimentos'):
     os.makedirs('resultados_experimentos')
@@ -29,7 +26,7 @@ with open(csv_file_name, mode='w', newline='', encoding='utf-8-sig') as file:
 
     for i in range(n_requests):
 
-        correo = malicious_username = f"robert{xss_scripts[i % len(xss_scripts)]}@gmail.com"
+        correo = random.choice(["dgamez@gmail.com", "jhon@gmail.com", "maria@gmail.com", "robert@gmail.com"])
         password = "Password1!"
         codigo = f'{random.randint(0,9)}{random.randint(0,9)}{random.randint(0,9)}{random.randint(0,9)}'
         login_data = {
@@ -44,14 +41,14 @@ with open(csv_file_name, mode='w', newline='', encoding='utf-8-sig') as file:
         response = requests.post(url, json=login_data, headers=headers)
 
         csv_data = [
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),
-            'experimento_integridad_001_XSS',
-            'integridad', 
+            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"), 
+            'experimento_confidencialidad_004_login_desde_ipsnopermitida',
+            'confidencialidad',
             i + 1,
             str(login_data),
             response.text,
             'status_code',
-            400,
+            403,
             response.status_code,
             1000
         ]
