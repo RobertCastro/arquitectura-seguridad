@@ -10,7 +10,7 @@ require('dotenv').config();
 
 const app = express();
 const port = 5000;
-// app.use(express.json()); 
+app.use(express.json()); 
 
 // 1. IP Filter
 // const ipsPermitidas = ['190.165.88.228'];
@@ -52,7 +52,7 @@ const botCheckerMiddleware = (req, res, next) => {
 };
 
 
-app.use('/login', loginLimiter, botCheckerMiddleware, createProxyMiddleware({ target: 'http://localhost:3001', changeOrigin: true }));
+app.use('/login', loginLimiter, botCheckerMiddleware, xssDetectionMiddlewarem, createProxyMiddleware({ target: 'http://localhost:3001', changeOrigin: true }));
 app.use('/api/v1/users', botCheckerMiddleware, createProxyMiddleware({ target: 'http://localhost:3002', changeOrigin: true }));
 
 
